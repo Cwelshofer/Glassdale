@@ -1,0 +1,9 @@
+.criminalsContainer{
+    display: flex;
+    flex-direction: row;
+   justify-content: space-evenly;
+   flex-wrap: wrap;
+    align-content:space-around ;
+    
+   
+}

@@ -1,0 +1,16 @@
+@import "/styles/criminals.css";
+
+.container {
+    display: flex;
+}
+
+
+
+section {
+    flex-basis: 20%;
+    border: 1px solid black;
+    padding: 0.5em;
+    margin: 2em;
+    text-align: left;
+    flex-direction: column;
+}

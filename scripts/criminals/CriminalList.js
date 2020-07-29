@@ -7,7 +7,7 @@ const eventHub = document.querySelector(".container")
 
 eventHub.addEventListener("officerSelected", (officerSelectedEvent) => {
     console.log("CriminalList: Custom officerSelected event heard on event hub")
-})
+
 //GOAL: Filter displayed criminals by the arresting officer that was chosen
   
 //Which officer was chosen: "Suzie Police" -> arrestingOfficer
@@ -15,7 +15,7 @@ const officerChosen = officerSelectedEvent.detail.officerName
 //Filter criminal array based on what's chosen
 const allCriminals = useCriminals()
 
-//Array of criminals that were arrested bt chosen officer
+//Array of criminals that were arrested by chosen officer
 const filteredByOfficer = allCriminals.filter(
     (currentCriminal) => {
         if (currentCriminal.arrestingOfficer === officerChosen) {
@@ -26,7 +26,7 @@ const filteredByOfficer = allCriminals.filter(
 )
 
 render(filteredByOfficer)
-
+})
 
 
 

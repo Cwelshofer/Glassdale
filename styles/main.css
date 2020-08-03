@@ -1,8 +1,9 @@
   @import "./criminals.css";
 @import "./officers.css";
-.container {
-    display: flex;
-}
+@import "./notes.css";
+@import "./filters.css";
+@import "./alibis.css";
+
 
 
 

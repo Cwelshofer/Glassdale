@@ -1,82 +1,137 @@
 import { useCriminals, getCriminals } from "./CriminalProvider.js";
 import { CriminalHTMLConverter } from "./CriminalHTMLConverter.js";
 import { useConvictions } from "../convictions/ConvictionProvider.js";
+import { AssociatesDialog } from "./AssociatesDialog.js";
+import { getCriminalFacilities, useCriminalFacilities } from "../facilities/CriminalFacilityProvider.js";
+import { getFacilities, useFacilities } from "../facilities/FacilityProvider.js";
 
 const contentTarget = document.querySelector(".criminalsContainer")
 const eventHub = document.querySelector(".container")
 
-eventHub.addEventListener("officerSelected", (officerSelectedEvent) => {
-    console.log("CriminalList: Custom officerSelected event heard on event hub")
+/*
+    State variables
+*/
+let criminals = []
+let criminalFacilities = []
+let facilities = []
+const chosenFilters = {
+    crime: "0",
+    officer: "0"
+}
 
-//GOAL: Filter displayed criminals by the arresting officer that was chosen
-  
-//Which officer was chosen: "Suzie Police" -> arrestingOfficer
-const officerChosen = officerSelectedEvent.detail.officerName
-//Filter criminal array based on what's chosen
-const allCriminals = useCriminals()
+/*
+    Main component initialization function
+*/
+export const CriminalList = () => {
+    getCriminals()
+        .then(getFacilities)
+        .then(getCriminalFacilities)
+        .then(() => {
+            criminals = useCriminals()
+            criminalFacilities = useCriminalFacilities()
+            facilities = useFacilities()
 
-//Array of criminals that were arrested by chosen officer
-const filteredByOfficer = allCriminals.filter(
-    (currentCriminal) => {
-        if (currentCriminal.arrestingOfficer === officerChosen) {
-            return true
-        }
-        return false
-    }
-)
-
-render(filteredByOfficer)
-})
+            render()
+        })
+}
 
 
 
-
-eventHub.addEventListener("crimeSelected", (crimeSelectedEvent) => {
-    // GOAL: Filter displayed criminals by the crime that was chosen
-
-    // Which crime was chosen?????
-    const crimeThatWasSelected = crimeSelectedEvent.detail.crimeId  // 9
-
-    // Get actual crime name. Number is not enough.
-    const arrayOfCrimes = useConvictions()
-    const foundCrimeObject = arrayOfCrimes.find(
-        (crime) => {
-            return parseInt(crimeThatWasSelected) === crime.id   // NaN  "falsy"
-        }
-    ) // { id: 9, name: "Theft" }
-
-    // Filter criminal array to only criminal that have a matching `conviction` property value
-    const allCriminals = useCriminals()
-
-    const filteredCriminals = allCriminals.filter(
-        (currentCriminalObject) => {
-            return foundCrimeObject.name === currentCriminalObject.conviction
-        }
-    ) // [ {}, {}, {}]
-
-    render(filteredCriminals)
-})
-
-const render = (arrayOfCriminals) => {
+/*
+    Component render function
+*/
+const render = () => {
+    console.log("CriminalList: Rendered to DOM")
     let criminalHTML = ""
 
-    arrayOfCriminals.forEach(criminal => {
-        criminalHTML += CriminalHTMLConverter(criminal)
-    })
+    const arrayOfCriminalHTMLRepresentations = criminals.map(
+        (criminal) => {
+            // Get all of the criminal/facility relationships for this criminal
+            const criminalFacilityRelationships = criminalFacilities.filter(
+                (cf) => {
+                    return criminal.id === cf.criminalId
+                }
+            )
+
+            // Convert the relationship objects to facility objects
+            const matchingFacilities = criminalFacilityRelationships.map(
+                (currentRelationship) => {
+                    return facilities.find(
+                        (facility) => {
+                            return currentRelationship.facilityId === facility.id
+                        }
+                    )
+                }
+            )
+
+            return CriminalHTMLConverter(criminal, matchingFacilities)
+        }
+    )
 
     contentTarget.innerHTML = `
         <h2>Glassdale Convicted Criminals</h2>
         <article class="criminalList">
-            ${ criminalHTML }
+            ${arrayOfCriminalHTMLRepresentations.join("")}
         </article>
+        ${AssociatesDialog()}
     `
 }
 
-export const CriminalList = () => {
 
-    getCriminals()
-        .then(() => {
-            const criminals = useCriminals()
-            render(criminals)
-        })
+/*
+    Check component's state, and perform necessary filtering
+*/
+const filterCriminals = () => {
+    criminals = useCriminals()
+    const arrayOfCrimes = useConvictions()
+
+    // If a crime was chosen, filter all criminals by that crime
+    if (chosenFilters.crime !== "0") {
+        const foundCrimeObject = arrayOfCrimes.find(
+            (crime) => {
+                return parseInt(chosenFilters.crime) === crime.id
+            }
+        )
+
+        criminals = criminals.filter(
+            (currentCriminalObject) => {
+                return foundCrimeObject.name === currentCriminalObject.conviction
+            }
+        )
+    }
+
+    // If an officer was chosen, filter all criminals by that crime
+    if (chosenFilters.officer !== "0") {
+        criminals = criminals.filter(
+            (currentCriminal) => {
+                if (currentCriminal.arrestingOfficer === chosenFilters.officer) {
+                    return true
+                }
+                return false
+            }
+        )
+    }
 }
+
+
+
+/*
+    EventHub event listeners
+*/
+eventHub.addEventListener("officerSelected", (officerSelectedEvent) => {
+    console.log("CriminalList: Custom officerSelected event heard on event hub")
+
+    chosenFilters.officer = officerSelectedEvent.detail.officerName
+    filterCriminals()
+    render()
+})
+
+
+eventHub.addEventListener("crimeSelected", (crimeSelectedEvent) => {
+    console.log("CriminalList: Custom crimeSelected event heard on event hub")
+
+    chosenFilters.crime = crimeSelectedEvent.detail.crimeId
+
+    filterCriminals()
+    render()
+})

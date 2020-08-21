@@ -6,57 +6,6 @@
       "timestamp": "07/29/2020",
       "author": "Suzie Police",
       "content": "I think Colonel Mustard did it."
-    },
-    {
-      "title": "",
-      "author": "",
-      "content": "",
-      "timestamp": 1596119894243,
-      "id": 2
-    },
-    {
-      "title": "note title",
-      "author": "name",
-      "content": "note",
-      "timestamp": 1596119906050,
-      "id": 3
-    },
-    {
-      "title": "hello ",
-      "author": "hi",
-      "content": "goodbye",
-      "timestamp": 1596219791189,
-      "id": 4
-    },
-    {
-      "title": "lab work",
-      "author": "Colin",
-      "content": "Testing ",
-      "timestamp": 1596221208775,
-      "id": 5
-    },
-    {
-      "title": "testing",
-      "author": "testing",
-      "content": "testing",
-      "timestamp": 1596221258549,
-      "id": 6
     }
-  ],
-  
-  "alibis": [
-    {
-      "name": "Ebony Hyatt",
-      "alibi": "getting married"
-    }
-
-  ],
-  "witnesses": [
-  {
-    "id": 1,
-    "name": "Issac Mosciski",
-    "statements": "Think he drove a large pickup truck"
-  }
-
   ]
 }
